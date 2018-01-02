@@ -16,12 +16,22 @@ app.post('/signup', (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   
-  if (!email || !password) {
-    res.sendStatus(400); // bad request
+  if (!email) {
+    res.status(400).json({
+      error: 'email required.'
+    }); // bad request
+    return;
+  }
+
+  if (!password) {
+    res.status(400).json({
+      error: 'password required.'
+    });
     return;
   }
   
-  axios.put(`http://${COUCHDB_ADMIN}@localhost:5984/_users/${USER_PREFIX}:${email}`, 
+  axios.put(
+    `http://${COUCHDB_ADMIN}@localhost:5984/_users/${USER_PREFIX}:${email}`, 
     {
       type: 'user',
       roles: ['member'],
@@ -35,6 +45,10 @@ app.post('/signup', (req, res, next) => {
       console.log(error);
       res.sendStatus(500); // internal server error
     });
+});
+
+app.use((req, res) => {
+  res.sendStatus(403);
 });
 
 const PORT = process.env.PORT || 8000;
